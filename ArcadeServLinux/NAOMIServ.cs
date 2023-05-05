@@ -1,17 +1,22 @@
 ﻿namespace NAOMIServ
 {
+    using System.Diagnostics.Metrics;
+    using System;
     using System.IO;
     using System.Net;
     using System.Net.Sockets;
     using System.Text;
+    using System.Xml.Linq;
     using Ionic.Zlib;
     using Util;
+    using static System.Net.WebRequestMethods;
 
     class NAOMIWebServer
     {
         // this should come from a config file
         public static string apm3Address = "apm3.teknoparrot.com";
-        public static string gundamAddress = "gundam.teknoparrot.com";
+        //public static string gundamAddress = "gundam.teknoparrot.com";
+        public static string gundamAddress = "tpserv.northeurope.cloudapp.azure.com";
 
         private TcpListener naomiListener;
         public static IPAddress localAddr = IPAddress.Parse("0.0.0.0"); // loopback may not work, might need i/f address
@@ -118,20 +123,19 @@
                             if (gameid == "SBUZ")
                             {
                                 // Gundam EX VS 2
-                                responseString = "stat=1&host=&name=Bagels&place_id=1234&nickname=Bagels&region0=1&setting=1&country=JPN&timezone=+09:00&res_class=PowerOnResponseVer2&uri=http://" + gundamAddress + ":7820/exvs2&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&year=2023&month=3&day=28&hour=0&minute=41&second=36";
+                                //responseString = "stat=1&host=&name=Bagels&place_id=1234&nickname=Bagels&region0=1&setting=1&country=JPN&timezone=+09:00&res_class=PowerOnResponseVer2&uri=http://" + gundamAddress + ":7820/exvs2&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&year=2023&month=3&day=28&hour=0&minute=41&second=36";
+                                responseString = "stat=1&host=" + gundamAddress + "&name=Bagels&place_id=1234&nickname=Bagels&region0=1&setting=1&country=JPN&timezone=+09:00&res_class=PowerOnResponseVer2&uri=https://" + gundamAddress + ":7820/exvs2&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&year=2023&month=5&day=5&hour=11&minute=26&second=2";
+
                             }
                             else
                             {
                                 // APM3/SWDC
                                 String pre = "stat=1&uri=" + apm3Address + "&host=&place_id=123&name=Bagels&nickname=Bagels&region0=1&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&country=JPN&allnet_id=456&client_timezone=+0900&utc_time=";
                                 String post = "Z&setting=&res_ver=3&token=";
-
                                 responseString = pre + String.Format("{0:s}", DateTime.UtcNow) + post + token + "\n";
                             }
                             int iTotBytes = responseString.Length;
-
                             SendPowerOnHeader(iTotBytes, ref mySocket);
-
                             Console.WriteLine("Sending response: {0}", responseString);
                             Util.SendToClient(responseString, ref mySocket);
                             Console.WriteLine("Response bytes sent: {0}", iTotBytes);
