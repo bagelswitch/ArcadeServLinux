@@ -7,6 +7,7 @@ namespace APM3Serv
     static class APM3
     {
         private static JsonNode keyDataJSON;
+        public static string aimeKey;
 
         static APM3()
         {
@@ -24,6 +25,7 @@ namespace APM3Serv
             fs.Close();
 
             keyDataJSON = JsonNode.Parse(keyDataString);
+            aimeKey = (string)keyDataJSON["aime"];
         }
 
         private static byte[] GetVoodoo(string gameid, string path)
@@ -183,7 +185,5 @@ namespace APM3Serv
         {
             return Encoding.ASCII.GetString(request.Skip(10).Take(4).ToArray());
         }
-
-        public static string aimeKey = (string) keyDataJSON["aime"];
     }
 }
