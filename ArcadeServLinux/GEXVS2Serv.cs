@@ -8,6 +8,7 @@
     using Util;
     using System.Net.Http.Json;
     using System.Net.Http;
+    using System;
 
     class GEXVS2WebServer
     {
@@ -58,7 +59,6 @@
                 // set request headers for proxied call to TP server
                 tpProxyClient.DefaultRequestHeaders.Add("Host", "tpserv.northeurope.cloudapp.azure.com");
                 tpProxyClient.DefaultRequestHeaders.Add("Accept", "*/*");
-                tpProxyClient.DefaultRequestHeaders.Add("X-Nue-Protobuf-Revision", "33");
             }
             catch (Exception e)
             {
@@ -104,6 +104,8 @@
                         int headerend = headers.IndexOf("\r\n\r\n");
                         headers = headers.Substring(0, headerend + 2);
 
+                        Console.WriteLine("Request headers: " + headers);
+
                         int requestLen = 0;
                         string[] headerArray = headers.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                         foreach (string header in headerArray)
@@ -145,31 +147,11 @@
                         fs.Close();
                         Console.WriteLine("\nWrote proxy response file: " + resFilename + "\n");
 
-                        /*
-                        FileStream fs;
-
-                        fs = new FileStream("gexvs2data/" + sMethod + ".bin", FileMode.Open, FileAccess.Read, FileShare.Read);
-
-                        // Create a reader that can read bytes from the FileStream.  
-                        BinaryReader reader = new BinaryReader(fs);
-                        byte[] bytes = new byte[fs.Length];
-                        int read;
-                        while ((read = reader.Read(bytes, 0, bytes.Length)) != 0)
-                        {
-                            // Read from the file and write the data to the network  
-                            sResponse = sResponse + Encoding.UTF8.GetString(bytes, 0, read);
-                            iTotBytes = iTotBytes + read;
-                        }
-                        reader.Close();
-                        fs.Close();
-                        */
-
-
                         SendEXVS2Header(responseBytes.Length, ref mySocket);
                         Util.SendToClient(responseBytes, responseBytes.Length, ref mySocket);
                         Console.WriteLine("Body bytes sent: {0}", responseBytes.Length);
 
-                        // Console.WriteLine("\nWrote response " + sResponse + "\n");
+                        //Console.WriteLine("\nWrote response " + sResponse + "\n");
                     }
                     catch (Exception e)
                     {
@@ -185,14 +167,48 @@
             using ByteArrayContent byteContent = new ByteArrayContent(request);
 
             byteContent.Headers.Add("Content-type", "application/x-protobuf");
+            byteContent.Headers.Add("X-Nue-Protobuf-Revision", "81");
 
-            using HttpResponseMessage response = await tpProxyClient.PostAsync("exvs2", byteContent);
+            using HttpResponseMessage response = await tpProxyClient.PostAsync("exvs2xb", byteContent);
 
             response.EnsureSuccessStatusCode();
+
+            HttpStatusCode responseCode = response.StatusCode;
+            Console.WriteLine("Upstream response code: " + responseCode);
+
+            Console.WriteLine("Upstream response headers: " + allHeadersAsString(response));
 
             byte[] responseBytes = response.Content.ReadAsByteArrayAsync().Result;
             
             return responseBytes;
+        }
+
+        private String allHeadersAsString(HttpResponseMessage resp)
+        {
+            String allHeaders = Enumerable
+            .Empty<(String name, String value)>()
+            // Add the main Response headers as a flat list of value-tuples with potentially duplicate `name` values:
+            .Concat(
+                resp.Headers
+                    .SelectMany(kvp => kvp.Value
+                        .Select(v => (name: kvp.Key, value: v))
+                    )
+            )
+            // Concat with the content-specific headers as a flat list of value-tuples with potentially duplicate `name` values:
+            .Concat(
+                resp.Content.Headers
+                    .SelectMany(kvp => kvp.Value
+                        .Select(v => (name: kvp.Key, value: v))
+                    )
+            )
+            // Render to a string:
+            .Aggregate(
+                seed: new StringBuilder(),
+                func: (sb, pair) => sb.Append(pair.name).Append(": ").Append(pair.value).AppendLine(),
+                resultSelector: sb => sb.ToString()
+            );
+
+            return allHeaders;
         }
 
         public void StartMMListen()

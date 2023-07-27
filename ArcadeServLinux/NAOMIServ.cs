@@ -74,12 +74,27 @@
                         Console.WriteLine("Naominet client Connected!!\n===========================\nCLient IP " + mySocket.RemoteEndPoint.ToString());
                         Byte[] bReceive = new Byte[4096];
                         mySocket.Receive(bReceive, bReceive.Length, 0);
-                        string sBuffer = Encoding.ASCII.GetString(bReceive);
-                        int headerend = sBuffer.IndexOf("\r\n\r\n");
-                        string headers = sBuffer.Substring(0, headerend + 1);
-                        string bodyEncoded = sBuffer.Substring(headerend + 4);
-                        int bodyend = bodyEncoded.LastIndexOf("=");
-                        bodyEncoded = bodyEncoded.Substring(0, bodyend + 1);
+
+                        // extract headers from request
+                        string headers = Encoding.UTF8.GetString(bReceive);
+                        int headerend = headers.IndexOf("\r\n\r\n");
+                        headers = headers.Substring(0, headerend + 2);
+
+                        int requestLen = 0;
+                        string[] headerArray = headers.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string header in headerArray)
+                        {
+                            string[] headerVal = header.Split(new[] { ": " }, StringSplitOptions.RemoveEmptyEntries);
+                            if (headerVal[0] == "Content-Length")
+                            {
+                                // get request content length
+                                string contentLength = headerVal[1];
+                                Console.WriteLine("Request content length " + contentLength);
+                                requestLen = Convert.ToInt32(contentLength);
+                            }
+                        }
+                        byte[] requestBytes = bReceive.Skip(headerend + 4).Take(requestLen).ToArray();
+                        string bodyEncoded = Encoding.ASCII.GetString(requestBytes);
 
                         Console.WriteLine("Request body encoded: " + bodyEncoded + "<end>");
 
@@ -125,7 +140,8 @@
                             {
                                 // Gundam EX VS 2
                                 //responseString = "stat=1&host=&name=Bagels&place_id=1234&nickname=Bagels&region0=1&setting=1&country=JPN&timezone=+09:00&res_class=PowerOnResponseVer2&uri=http://" + gundamAddress + ":7820/exvs2&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&year=2023&month=3&day=28&hour=0&minute=41&second=36";
-                                responseString = "stat=1&host=" + gundamAddress + "&name=Bagels&place_id=1234&nickname=Bagels&region0=1&setting=1&country=JPN&timezone=+09:00&res_class=PowerOnResponseVer2&uri=" + gundamProtocol + "://" + gundamAddress + ":7820/exvs2&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&year=2023&month=5&day=5&hour=11&minute=26&second=2";
+                                //responseString = "stat=1&host=" + gundamAddress + "&name=Bagels&place_id=1234&nickname=Bagels&region0=1&setting=1&country=JPN&timezone=+09:00&res_class=PowerOnResponseVer2&uri=" + gundamProtocol + "://" + gundamAddress + ":7820/exvs2&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&year=2023&month=5&day=5&hour=11&minute=26&second=2";
+                                responseString = "stat=1&host=" + gundamAddress + "&name=Bagels&place_id=1234&nickname=Bagels&region0=1&setting=1&country=JPN&timezone=+09:00&res_class=PowerOnResponseVer2&uri=" + gundamProtocol + "://" + gundamAddress + ":7820/exvs2xb&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&year=2023&month=7&day=28&hour=1&minute=43&second=52";
                             }
                             else
                             {
