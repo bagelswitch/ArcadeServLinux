@@ -232,30 +232,40 @@
                         int i = mySocket.Receive(bReceive, bReceive.Length, 0);
                         //Convert Byte to String  
                         string sBuffer = Encoding.ASCII.GetString(bReceive);
-                        // Determine target method
-                        reqBody = sBuffer.Substring(sBuffer.IndexOf("ISSUE"));
-                        sMethod = reqBody.Substring(0, reqBody.IndexOf("-"));
-
-                        Console.WriteLine("\nRequested method " + sMethod + "\n");
 
                         int iTotBytes = 0;
-                        sResponse = "";
-                        FileStream fs;
+                        byte[] bytes;
 
-                        fs = new FileStream("gexvs2data/" + sMethod + ".bin", FileMode.Open, FileAccess.Read, FileShare.Read);
-
-                        // Create a reader that can read bytes from the FileStream.  
-                        BinaryReader reader = new BinaryReader(fs);
-                        byte[] bytes = new byte[fs.Length];
-                        int read;
-                        while ((read = reader.Read(bytes, 0, bytes.Length)) != 0)
+                        if (sBuffer.IndexOf("ISSUE") >= 0)
                         {
-                            // Read from the file and write the data to the network  
-                            sResponse = sResponse + Encoding.UTF8.GetString(bytes, 0, read);
-                            iTotBytes = iTotBytes + read;
+                            // Determine target method
+                            reqBody = sBuffer.Substring(sBuffer.IndexOf("ISSUE"));
+                            sMethod = reqBody.Substring(0, reqBody.IndexOf("-"));
+
+                            Console.WriteLine("\nRequested method " + sMethod + "\n");
+
+                            sResponse = "";
+                            FileStream fs;
+
+                            fs = new FileStream("gexvs2data/" + sMethod + ".bin", FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                            // Create a reader that can read bytes from the FileStream.  
+                            BinaryReader reader = new BinaryReader(fs);
+                            bytes = new byte[fs.Length];
+                            int read;
+                            while ((read = reader.Read(bytes, 0, bytes.Length)) != 0)
+                            {
+                                // Read from the file and write the data to the network  
+                                sResponse = sResponse + Encoding.UTF8.GetString(bytes, 0, read);
+                                iTotBytes = iTotBytes + read;
+                            }
+                            reader.Close();
+                            fs.Close();
+                        } else
+                        {
+                            Console.WriteLine("\nUnknown method, request body: " + sBuffer + "\n");
+                            bytes = new byte[0];
                         }
-                        reader.Close();
-                        fs.Close();
                         SendEXVS2Header(iTotBytes, ref mySocket);
                         Util.SendToClient(bytes, iTotBytes, ref mySocket);
                         Console.WriteLine("Body bytes sent: {0}", iTotBytes);
