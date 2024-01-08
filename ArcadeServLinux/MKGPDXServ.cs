@@ -62,6 +62,8 @@
                         Console.WriteLine("MKGPDX client Connected!!\n=======================\nCLient IP " + mySocket.RemoteEndPoint.ToString());
                         //make a byte array and receive data from the client   
                         Byte[] bReceive = new Byte[4096];
+                        // add a delay before reading from socket to avoid incomplete post data, maybe?
+                        Thread.Sleep(50);
                         mySocket.Receive(bReceive, bReceive.Length, 0);
 
                         // extract headers from request
@@ -101,6 +103,10 @@
                                 {
                                     docontinue = true;
                                 }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Unknown header name: " + headerVal[0] + " with value: " + headerVal[1]);
                             }
                         }
 
