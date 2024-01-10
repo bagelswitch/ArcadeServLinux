@@ -111,6 +111,7 @@ namespace APM3Serv
                 case "SDGU": return (string)keyDataJSON["keys"][gameid]["default"];
                 case "SDHW": return (string)keyDataJSON["keys"][gameid]["default"];
                 case "SDHP": return (string)keyDataJSON["keys"][gameid]["default"];
+                case "SDJG": return (string)keyDataJSON["keys"][gameid]["default"];
                 default: return "0000000000000000000000000000000000000000000000000000000000000000";
             }
         }
