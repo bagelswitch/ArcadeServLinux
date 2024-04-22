@@ -19,6 +19,9 @@
         public static string gundamAddress = "gundam.teknoparrot.com"; 
         public static string gundamProtocol = "http";
 
+        public static string chronoAddress = "74.234.107.148";
+        public static string chronoProtocol = "http";
+
         private TcpListener naomiListener;
         public static IPAddress localAddr = IPAddress.Parse("0.0.0.0"); // loopback may not work, might need i/f address
         private static int NAOMINETport = 9876; // naominet.jp port 
@@ -142,6 +145,13 @@
                                 //responseString = "stat=1&host=&name=Bagels&place_id=1234&nickname=Bagels&region0=1&setting=1&country=JPN&timezone=+09:00&res_class=PowerOnResponseVer2&uri=http://" + gundamAddress + ":7820/exvs2&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&year=2023&month=3&day=28&hour=0&minute=41&second=36";
                                 //responseString = "stat=1&host=" + gundamAddress + "&name=Bagels&place_id=1234&nickname=Bagels&region0=1&setting=1&country=JPN&timezone=+09:00&res_class=PowerOnResponseVer2&uri=" + gundamProtocol + "://" + gundamAddress + ":7820/exvs2&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&year=2023&month=5&day=5&hour=11&minute=26&second=2";
                                 responseString = "stat=1&host=" + gundamAddress + "&name=Bagels&place_id=1234&nickname=Bagels&region0=1&setting=1&country=JPN&timezone=+09:00&res_class=PowerOnResponseVer2&uri=" + gundamProtocol + "://" + gundamAddress + ":7820/exvs2xb&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&year=2023&month=7&day=28&hour=1&minute=43&second=52";
+                            }
+                            else if (gameid == "SDEC")
+                            {
+                                // Chrono Regalia
+                                string pre = "stat=1&uri=" + chronoProtocol + "://" + chronoAddress + ":9002/chrono&host=" + chronoAddress + ":9002&place_id=123&name=TeknoParrot&nickname=TeknoParrot&region0=1&region_name0=Neo Tokyo&region_name1=X&region_name2=Y&region_name3=Z&country=JPN&allnet_id=456&client_timezone=+0900&utc_time=";
+                                string post = "Z&setting=&res_ver=3&token=";
+                                responseString = pre + String.Format("{0:s}", DateTime.UtcNow) + post + token + "\n";
                             }
                             else
                             {
