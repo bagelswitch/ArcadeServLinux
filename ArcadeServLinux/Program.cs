@@ -12,6 +12,7 @@ namespace ArcadeServLinux
         {
             new AuthWebServer();
             new NAOMIWebServer();
+            new IDACWebServer();
             new GEXVS2WebServer();
             new APM3WebServer();
             new MKGPDXWebServer();

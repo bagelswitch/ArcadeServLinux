@@ -15,12 +15,18 @@
     {
         // this should come from a config file
         public static string apm3Address = "apm3.teknoparrot.com";
+        public static string apm3Protocol = "http";
 
         public static string gundamAddress = "gundam.teknoparrot.com"; 
         public static string gundamProtocol = "http";
 
-        public static string chronoAddress = "74.234.107.148";
-        public static string chronoProtocol = "http";
+        public static string chronoAddress = "chrono.teknoparrot.com"; // "213.186.231.196"; // "74.234.107.148";
+        public static string chronoProtocol = "https";
+        public static string chronoPort = "445";
+
+        public static string idacAddress = "idac.teknoparrot.com";
+        public static string idacProtocol = "https";
+        public static string idacPort = "443";
 
         private TcpListener naomiListener;
         public static IPAddress localAddr = IPAddress.Parse("0.0.0.0"); // loopback may not work, might need i/f address
@@ -149,14 +155,21 @@
                             else if (gameid == "SDEC")
                             {
                                 // Chrono Regalia
-                                string pre = "stat=1&uri=" + chronoProtocol + "://" + chronoAddress + ":9002/chrono&host=" + chronoAddress + ":9002&place_id=123&name=TeknoParrot&nickname=TeknoParrot&region0=1&region_name0=Neo Tokyo&region_name1=X&region_name2=Y&region_name3=Z&country=JPN&allnet_id=456&client_timezone=+0900&utc_time=";
+                                string pre = "stat=1&uri=" + chronoProtocol + "://" + chronoAddress + ":" + chronoPort + "/chrono&host=" + chronoAddress + ":" + chronoPort + "&place_id=123&name=TeknoParrot&nickname=TeknoParrot&region0=1&region_name0=Neo Tokyo&region_name1=X&region_name2=Y&region_name3=Z&country=JPN&allnet_id=456&client_timezone=+0900&utc_time=";
+                                string post = "Z&setting=&res_ver=3&token=";
+                                responseString = pre + String.Format("{0:s}", DateTime.UtcNow) + post + token + "\n";
+                            }
+                            else if (gameid == "SDGT")
+                            {
+                                // Initial D the Arcade
+                                string pre = "stat=1&uri=" + idacProtocol + "://" + idacAddress + ":" + idacPort + "/idac&host=" + idacAddress + ":" + idacPort + "&place_id=123&name=TeknoParrot&nickname=TeknoParrot&region0=1&region_name0=Neo Tokyo&region_name1=X&region_name2=Y&region_name3=Z&country=JPN&allnet_id=456&client_timezone=+0900&utc_time=";
                                 string post = "Z&setting=&res_ver=3&token=";
                                 responseString = pre + String.Format("{0:s}", DateTime.UtcNow) + post + token + "\n";
                             }
                             else
                             {
                                 // APM3/SWDC
-                                String pre = "stat=1&uri=" + apm3Address + "&host=&place_id=123&name=Bagels&nickname=Bagels&region0=1&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&country=JPN&allnet_id=456&client_timezone=+0900&utc_time=";
+                                String pre = "stat=1&uri=" + apm3Protocol + "://" + apm3Address + "&host=" + apm3Address + "&place_id=123&name=Bagels&nickname=Bagels&region0=1&region_name0=W&region_name1=X&region_name2=Y&region_name3=Z&country=JPN&allnet_id=456&client_timezone=+0900&utc_time=";
                                 String post = "Z&setting=&res_ver=3&token=";
                                 responseString = pre + String.Format("{0:s}", DateTime.UtcNow) + post + token + "\n";
                             }
