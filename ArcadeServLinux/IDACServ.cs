@@ -1,4 +1,4 @@
-﻿namespace GEXVS2Serv
+﻿namespace IDACServ
 {
     using System.IO;
     using System.Net;
