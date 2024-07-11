@@ -21,8 +21,8 @@
         public static string gundamProtocol = "http";
 
         public static string chronoAddress = "chrono.teknoparrot.com"; // "213.186.231.196"; // "74.234.107.148";
-        public static string chronoProtocol = "https";
-        public static string chronoPort = "445";
+        public static string chronoProtocol = "http";
+        public static string chronoPort = "9004";
 
         public static string idacAddress = "idac.teknoparrot.com";
         public static string idacProtocol = "https";
